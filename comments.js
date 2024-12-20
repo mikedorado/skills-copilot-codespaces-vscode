@@ -1,45 +1,36 @@
-// Create a web server that listens for HTTP requests on port 3000
-// Create a route that listens for GET requests to the path '/comments'
-// When a GET request is made to the '/comments' path, respond with a JSON object containing an array of comments
-// Each comment in the array should have a 'text' property with a value of 'This is a comment'
-// Start the web server and test the route using a web browser or HTTP client
-// Bonus: Add a POST route that allows users to add comments to the array
-// Bonus: Add a route that allows users to get a specific comment by its index in the array
+// Create web server
+// Create a route for comments
+// Create a route for adding a comment
+// Create a route for deleting a comment
 
 const express = require('express');
 const app = express();
-const PORT = 3000;
+const bodyParser = require('body-parser');
+const comments = [];
 
-let comments = [
-    { text: 'This is a comment' },
-    { text: 'Another comment' },
-    { text: 'Yet another comment' }
-];
-
-app.get('/', (req, res) => {
-    res.send('Welcome to the Comments API');
-});
+app.use(bodyParser.json());
 
 app.get('/comments', (req, res) => {
-    res.json(comments);
+  res.json(comments);
 });
 
 app.post('/comments', (req, res) => {
-    const newComment = { text: 'New comment' };
-    comments.push(newComment);
-    res.json({ message: 'Comment added', comment: newComment });
+  const comment = req.body;
+  comments.push(comment);
+  res.status(201).send('Comment added');
 });
 
-app.get('/comments/:index', (req, res) => {
-    const index = req.params.index;
-    const comment = comments[index];
-    if (comment) {
-        res.json(comment);
-    } else {
-        res.status(404).json({ message: 'Comment not found' });
-    }
+app.delete('/comments/:id', (req, res) => {
+  const id = req.params.id;
+  const comment = comments.find((comment) => comment.id === id);
+  if (!comment) {
+    res.status(404).send('Comment not found');
+  } else {
+    comments.splice(comments.indexOf(comment), 1);
+    res.status(200).send('Comment deleted');
+  }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
 });
